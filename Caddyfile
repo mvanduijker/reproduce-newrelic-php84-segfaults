@@ -1,0 +1,21 @@
+:8080 {
+    root * /var/www/html
+    encode zstd gzip
+
+    php_fastcgi php:9000 {
+        try_files {path} index.php
+        resolve_root_symlink
+    }
+
+    @phpFile {
+        path *.php*
+    }
+
+    error @phpFile "Not found" 404
+
+    file_server
+
+    log {
+        output stderr
+    }
+}
