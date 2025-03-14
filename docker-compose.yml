@@ -1,0 +1,30 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf   # Mounting the config here
+    ports:
+      - "8080:80"
+    depends_on:
+      - php
+
+  php:
+    container_name: php
+    build:
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - ./:/var/www
+    environment:
+      NEWRELIC_ENABLED: true
+      NEWRELIC_DAEMON_ADDRESS: newrelic_daemon:31339
+      NEWRELIC_LOG_DIR: /tmp
+      # NEWRELIC_LICENSE_KEY: LICENCE_KEY
+    depends_on:
+      - newrelic_daemon
+  
+  newrelic_daemon:
+    image: newrelic/php-daemon:11.6.0
+    container_name: newrelic_daemon
